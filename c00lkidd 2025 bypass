@@ -1,0 +1,130 @@
+--===c00lkidd 2025 by c00lkidd===--
+
+local plr = game:GetService("Players").LocalPlayer
+
+local ScreenGui = Instance.new("ScreenGui", plr:WaitForChild("PlayerGui"))
+ScreenGui.Name = "c00lkidd 2025"
+
+local Frame = Instance.new("Frame", ScreenGui)
+Frame.Size = UDim2.new(0, 460, 0, 300)
+Frame.Position = UDim2.new(0.5, -230, 0.5, -150)
+Frame.BackgroundColor3 = Color3.new(0, 0, 0)
+Frame.BorderColor3 = Color3.new(1, 0, 0)
+Frame.BorderSizePixel = 2
+Frame.Active = true
+Frame.Draggable = true
+
+local Title = Instance.new("TextLabel", Frame)
+Title.Size = UDim2.new(1, -20, 0, 30)
+Title.Position = UDim2.new(0, 10, 0, 5)
+Title.BackgroundTransparency = 1
+Title.TextColor3 = Color3.new(1, 1, 1)
+Title.Text = "c00lkidd 2025"
+Title.Font = Enum.Font.SourceSansBold
+Title.TextSize = 20
+Title.TextXAlignment = Enum.TextXAlignment.Center
+
+local UsernameButton = Instance.new("TextButton", Frame)
+UsernameButton.Size = UDim2.new(0, 140, 0, 30)
+UsernameButton.Position = UDim2.new(0, 10, 0, 40)
+UsernameButton.BackgroundColor3 = Color3.new(0, 0, 0)
+UsernameButton.BorderColor3 = Color3.new(1, 0, 0)
+UsernameButton.TextColor3 = Color3.new(1, 1, 1)
+UsernameButton.Text = "Username"
+UsernameButton.Font = Enum.Font.SourceSansBold
+UsernameButton.TextSize = 16
+
+local ScrollingFrame = Instance.new("ScrollingFrame", Frame)
+ScrollingFrame.Size = UDim2.new(1, -20, 0, 130)
+ScrollingFrame.Position = UDim2.new(0, 10, 0, 75)
+ScrollingFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+ScrollingFrame.BorderColor3 = Color3.new(1, 0, 0)
+ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+ScrollingFrame.ScrollBarThickness = 6
+ScrollingFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+ScrollingFrame.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+
+local TextBox = Instance.new("TextBox", ScrollingFrame)
+TextBox.Size = UDim2.new(1, -6, 0, 130)
+TextBox.Position = UDim2.new(0, 0, 0, 0)
+TextBox.BackgroundTransparency = 1
+TextBox.TextColor3 = Color3.new(1, 1, 1)
+TextBox.ClearTextOnFocus = false
+TextBox.MultiLine = true
+TextBox.Text = ""
+TextBox.Font = Enum.Font.SourceSansBold
+TextBox.TextSize = 16
+TextBox.PlaceholderText = "made by v1rsG on github"
+TextBox.TextWrapped = true
+TextBox.AutomaticSize = Enum.AutomaticSize.Y
+
+TextBox:GetPropertyChangedSignal("Text"):Connect(function()
+    ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, TextBox.AbsoluteSize.Y)
+end)
+
+local function createButton(name, xOffset)
+    local button = Instance.new("TextButton", Frame)
+    button.Size = UDim2.new(0, 140, 0, 40)
+    button.Position = UDim2.new(0, 10 + (150 * xOffset), 0, 220)
+    button.BackgroundColor3 = Color3.new(0, 0, 0)
+    button.BorderColor3 = Color3.new(1, 0, 0)
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.Text = name
+    button.Font = Enum.Font.SourceSansBold
+    button.TextSize = 16
+    return button
+end
+
+local ExecuteButton = createButton("Execute", 0)
+local ClearButton = createButton("Clear", 1)
+local R6Button = createButton("R6", 2)
+
+ExecuteButton.MouseButton1Click:Connect(function()
+    local code = TextBox.Text
+    local assetId = code:match("require%s*%(?%s*(%d+)%s*%)?")
+
+    if assetId then
+        local success, result = pcall(function()
+            local objects = game:GetObjects("rbxassetid://" .. assetId)
+            local obj = objects[1]
+            if obj then
+                obj.Parent = plr:WaitForChild("PlayerGui")
+                if obj:IsA("ModuleScript") then
+                    local modSuccess, modResult = pcall(function()
+                        local fullRequire = require(obj)
+                        if typeof(fullRequire) == "function" then
+                            fullRequire()
+                        end
+                    end)
+                    if not modSuccess then
+                        warn("Error requiring module:", modResult)
+                    end
+                end
+            end
+        end)
+        if not success then
+            warn("Error loading asset:", result)
+        end
+    else
+        local func = loadstring(code)
+        if func then
+            pcall(func)
+        end
+    end
+end)
+
+ClearButton.MouseButton1Click:Connect(function()
+    TextBox.Text = ""
+end)
+
+R6Button.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/v1rsG/c00lkidd-2025/refs/heads/main/R6"))()
+end)
+
+UsernameButton.MouseButton1Click:Connect(function()
+    local code = TextBox.Text
+    if string.find(code:lower(), "require") and (string.find(code:lower(), "username") or string.find(code:lower(), "name")) then
+        TextBox.Text = code:gsub("username", plr.Name):gsub("name", plr.Name)
+    end
+end)
+  
